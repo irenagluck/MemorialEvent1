@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>יום הזיכרון – היוזמה הדמוקרטית היהודית</title>
+
+  <!-- Google Maps (loaded before app scripts so the API is ready) -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAfNIbaViqyfDQz0DsoDlJh_oLuE72bpd0&libraries=places&language=he&region=IL"></script>
+
+  <!-- Application styles -->
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+<!-- =============================================
+     HEADER
+     ============================================= -->
+<header>
+  <div>
+    <div class="org-name">היוזמה הדמוקרטית היהודית</div>
+    <div class="org-sub">Jewish Democratic Initiative</div>
+  </div>
+  <div class="header-right">
+    <div id="user-status" style="display:none">
+      <span id="user-display-name"></span>
+      <button id="logout-btn">יציאה</button>
+    </div>
+    <button id="login-header-btn" style="display:none">כניסה</button>
+    <span class="flag">🕯️</span>
+  </div>
+</header>
+
+<!-- =============================================
+     HERO
+     ============================================= -->
+<div class="hero">
+  <h1>יום הזיכרון לחללי מערכות ישראל</h1>
+  <p>מצאו את טקס הזיכרון הקרוב אליכם, הצטרפו לאירוע בישובכם וסמנו את נוכחותכם</p>
+</div>
+
+<!-- =============================================
+     SEARCH BAR
+     ============================================= -->
+<div class="search-section">
+  <label for="search-input">חיפוש:</label>
+  <div class="search-input-wrapper">
+    <input type="search" id="search-input"
+      placeholder="שם ישוב שלכם או שם האירוע..."
+      autocomplete="search" name="location-search" />
+    <div id="search-suggestions" class="search-suggestions"></div>
+  </div>
+  <button id="search-btn" class="btn-blue">חפש</button>
+  <button id="near-me-btn" class="btn-blue" title="מצא אירוע קרוב אלי">📍 קרוב אלי</button>
+  <button id="add-location-btn" class="btn-green" style="display:none">+ הוספת מיקום</button>
+  <button id="admin-panel-btn" class="btn-orange" style="display:none">פאנל ניהול</button>
+  <div id="search-message"></div>
+</div>
+
+<!-- =============================================
+     MAIN CONTENT: MAP + SIDE PANEL
+     ============================================= -->
+<div class="main-content">
+
+  <!-- Map -->
+  <div class="map-wrapper" id="map-wrapper">
+    <div id="map"></div>
+    <div id="add-mode-banner">לחצו על המפה כדי לסמן את המיקום החדש</div>
+  </div>
+
+  <!-- Side panel -->
+  <div class="side-panel">
+    <div class="panel-header">אירועים באזורכם</div>
+
+    <!-- Shown before any point is selected -->
+    <div class="panel-placeholder" id="panel-placeholder">
+      <span class="icon">📍</span>
+      לחצו על נקודה במפה<br />או חפשו ישוב<br />כדי לראות פרטי האירוע
+    </div>
+
+    <!-- Event detail card (shown after a point is selected) -->
+    <div class="event-card" id="event-card">
+      <div class="card-title-row">
+        <span class="card-title-text" id="card-title"></span>
+        <button class="edit-btn" id="edit-location-btn">עריכה</button>
+      </div>
+      <div class="card-body">
+        <div class="info-row"><span class="info-icon">📅</span><div><span class="info-label">תאריך: </span><span id="card-date"></span></div></div>
+        <div class="info-row"><span class="info-icon">🕐</span><div><span class="info-label">שעה: </span><span id="card-time"></span></div></div>
+        <div class="info-row"><span class="info-icon">📍</span><div><span class="info-label">מיקום: </span><span id="card-location"></span></div></div>
+        <div class="info-row"><span class="info-icon">🚶</span><div><span class="info-label">הוראות הגעה: </span><span id="card-directions"></span></div></div>
+        <div class="info-row"><span class="info-icon">👥</span><div><span class="info-label">קיבולת: </span><span id="card-capacity"></span></div></div>
+        <div class="notice-box" id="card-notice"></div>
+        <div class="broadcast-box" id="card-broadcast"></div>
+        <a id="card-navigate-btn" href="#" target="_blank" rel="noopener noreferrer" class="navigate-btn" style="display:none">🗺 ניווט לאירוע</a>
+        <button class="register-btn" id="register-btn">הרשמה לאירוע &larr;</button>
+      </div>
+    </div>
+
+    <!-- Scrollable event list -->
+    <ul class="location-list" id="location-list"></ul>
+  </div>
+
+</div><!-- /.main-content -->
+
+<!-- =============================================
+     FOOTER
+     ============================================= -->
+<footer>
+  &copy; 2026 היוזמה הדמוקרטית היהודית &nbsp;|&nbsp; Jewish Democratic Initiative
+</footer>
+
+
+<!-- =============================================
+     MODAL 1: LOGIN
+     ============================================= -->
+<div class="modal-overlay" id="login-modal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h2>כניסה למערכת</h2>
+      <button class="modal-close" id="login-modal-close">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="tab-bar">
+        <button class="tab active" id="tab-visitor">כניסה כמבקר</button>
+        <button class="tab"        id="tab-admin">כניסה כמנהל</button>
+      </div>
+
+      <!-- Visitor tab -->
+      <div id="visitor-tab">
+        <p style="font-size:0.85rem;color:#666;margin-bottom:14px">
+          תוכל להזין פרטים כדי שנוכל לסייע לך, או להמשיך בעילום שם.
+        </p>
+        <div class="form-group"><label>שם</label><input type="text"  id="v-name"  placeholder="שמך" /></div>
+        <div class="form-group"><label>דוא"ל</label><input type="email" id="v-email" placeholder='כתובת דוא"ל' /></div>
+        <div class="form-group"><label>טלפון</label><input type="tel"  id="v-phone" placeholder="מספר טלפון" /></div>
+        <div class="modal-footer">
+          <button class="btn-save"         id="visitor-enter-btn">כניסה</button>
+          <button class="btn-cancel-modal" id="visitor-anon-btn">כניסה ללא פרטים</button>
+        </div>
+      </div>
+
+      <!-- Admin tab -->
+      <div id="admin-tab" style="display:none">
+        <div class="form-group">
+          <label>דוא"ל <span class="required">*</span></label>
+          <input type="email" id="a-email" placeholder='דוא"ל מנהל' autocomplete="username" />
+        </div>
+        <div class="form-group">
+          <label>סיסמא <span class="required">*</span></label>
+          <div class="password-wrapper">
+            <input type="password" id="a-password" placeholder="סיסמא (6 תווים לפחות)" autocomplete="current-password" />
+            <button type="button" class="show-pw-btn" data-target="a-password">👁</button>
+          </div>
+        </div>
+        <div id="admin-auth-error" style="color:#c00;font-size:0.85rem;margin-bottom:10px;display:none"></div>
+        <div class="modal-footer">
+          <button class="btn-save"         id="admin-login-btn">כניסה</button>
+          <button class="btn-cancel-modal" id="admin-register-btn">הרשמה ראשונה</button>
+        </div>
+        <p style="font-size:0.78rem;color:#999;margin-top:10px">
+          "הרשמה ראשונה" תיצור חשבון מנהל חדש עם הפרטים שהוזנו.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- =============================================
+     MODAL 2: REGISTER FOR EVENT
+     ============================================= -->
+<div class="modal-overlay" id="register-modal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h2>הרשמה לאירוע</h2>
+      <button class="modal-close" id="reg-modal-close">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div id="reg-event-title" style="font-weight:700;color:#003399;margin-bottom:4px;font-size:0.95rem"></div>
+      <div id="reg-count"       style="font-size:0.82rem;color:#555;margin-bottom:12px"></div>
+
+      <!-- Shown when the event is in the past -->
+      <div id="reg-past-msg" style="display:none;background:#fff3cd;border-right:4px solid #f9a825;padding:10px;border-radius:6px;font-weight:600;color:#856404;margin-bottom:12px">
+        האירוע כבר עבר – לא ניתן להירשם.
+      </div>
+
+      <!-- Admin: search and delete existing registrations -->
+      <div id="reg-admin-section" style="display:none;margin-bottom:14px;padding:10px;background:#f0f4ff;border-radius:8px;border:1px solid #ccd6f0">
+        <div style="font-size:0.85rem;font-weight:700;color:#003399;margin-bottom:8px">🔍 חיפוש רשומים (מנהל)</div>
+        <div style="display:flex;gap:6px;margin-bottom:8px">
+          <input type="text" id="reg-admin-search" placeholder="חפש לפי שם..."
+            style="flex:1;padding:6px 10px;border:1px solid #ccd6f0;border-radius:6px;font-size:0.85rem;direction:rtl" />
+          <button class="btn-blue" id="reg-admin-search-btn" style="padding:6px 12px;font-size:0.82rem">חפש</button>
+        </div>
+        <div id="reg-admin-results"></div>
+      </div>
+
+      <div class="form-group">
+        <label>שם מלא <span class="required">*</span></label>
+        <input type="text" id="reg-name" placeholder="שמך המלא" />
+        <div class="form-error" id="reg-err-name">שדה חובה</div>
+      </div>
+      <div class="form-group">
+        <label>טלפון <span style="font-size:0.78rem;color:#888">(לפחות אחד מהשניים חובה)</span></label>
+        <input type="tel" id="reg-phone" placeholder="מספר טלפון" />
+      </div>
+      <div class="form-group">
+        <label>דוא"ל</label>
+        <input type="email" id="reg-email" placeholder='כתובת דוא"ל' />
+        <div class="form-error" id="reg-err-contact">יש להזין טלפון או דוא"ל</div>
+      </div>
+      <div class="form-error" id="reg-err-dup" style="margin-bottom:8px;font-size:0.85rem"></div>
+      <div id="reg-success" style="color:#1a7a3a;font-weight:600;display:none;padding:8px 0;font-size:0.95rem">
+        ההרשמה בוצעה בהצלחה! נתראה באירוע.
+      </div>
+      <div class="modal-footer">
+        <button class="btn-save"         id="reg-save-btn">הרשמה</button>
+        <button class="btn-cancel-modal" id="reg-cancel-btn">ביטול</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- =============================================
+     MODAL 3: ADD / EDIT LOCATION (admin)
+     ============================================= -->
+<div class="modal-overlay" id="add-modal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h2 id="add-modal-title">הוספת מיקום חדש</h2>
+      <button class="modal-close" id="modal-close-btn">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-coords" id="modal-coords"></div>
+
+      <div class="form-group">
+        <label>שם ישוב <span class="required">*</span></label>
+        <input type="text" id="f-name" placeholder="לדוגמה: רעננה" />
+        <div class="form-error" id="err-name">שדה חובה</div>
+      </div>
+      <div class="form-group">
+        <label>כתובת / שם המקום <span class="required">*</span></label>
+        <input type="text" id="f-location" placeholder="לדוגמה: כיכר העיר, רעננה" />
+        <div class="form-error" id="err-location">שדה חובה</div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>תאריך <span class="required">*</span></label>
+          <input type="date" id="f-date" />
+          <div class="form-error" id="err-date">שדה חובה</div>
+        </div>
+        <div class="form-group">
+          <label>שעה <span class="required">*</span></label>
+          <input type="time" id="f-time" value="20:00" />
+          <div class="form-error" id="err-time">שדה חובה</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>הוראות הגעה</label>
+        <input type="text" id="f-directions" placeholder="לדוגמה: ניתן להגיע באוטובוס קו 55" />
+      </div>
+      <div class="form-group">
+        <label>קיבולת משתתפים</label>
+        <input type="text" id="f-capacity" placeholder="לדוגמה: עד 300 משתתפים" />
+      </div>
+      <div class="form-group">
+        <label>הודעה / הערות לאירוע</label>
+        <textarea id="f-notice" placeholder="מידע נוסף למשתתפים..."></textarea>
+      </div>
+
+      <div class="modal-footer" style="justify-content:space-between;flex-wrap:wrap;gap:8px">
+        <div style="display:flex;gap:8px">
+          <button class="btn-save"         id="modal-save-btn">שמור מיקום</button>
+          <button class="btn-cancel-modal" id="modal-cancel-btn">ביטול</button>
+        </div>
+        <button id="modal-delete-btn"
+          style="display:none;padding:10px 18px;background:#c00;color:white;border:none;border-radius:8px;font-size:0.95rem;cursor:pointer">
+          🗑 מחק מיקום
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- =============================================
+     MODAL 4: ADMIN PANEL
+     ============================================= -->
+<div class="modal-overlay" id="admin-panel-modal">
+  <div class="modal-box wide">
+    <div class="modal-header">
+      <h2>פאנל ניהול</h2>
+      <button class="modal-close" id="admin-panel-close">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="tab-bar">
+        <button class="tab active" id="ap-tab-reg">רשומים לאירועים</button>
+        <button class="tab"        id="ap-tab-broadcast">הודעה לכולם</button>
+      </div>
+
+      <!-- Tab: Registrations -->
+      <div id="ap-registrations">
+        <div style="display:flex;gap:10px;align-items:center;margin-bottom:12px;flex-wrap:wrap">
+          <label style="font-weight:600;font-size:0.88rem">סינון לפי אירוע:</label>
+          <select id="filter-event-select" style="flex:1;min-width:140px;padding:6px 10px;border:2px solid #ccd6f0;border-radius:7px;direction:rtl">
+            <option value="">כל האירועים</option>
+          </select>
+          <button class="btn-blue" id="load-registrations-btn" style="padding:7px 14px">טען</button>
+        </div>
+        <div id="reg-table-container">
+          <p style="color:#888;font-size:0.88rem">לחץ "טען" כדי להציג רשומים.</p>
+        </div>
+      </div>
+
+      <!-- Tab: Broadcast -->
+      <div id="ap-broadcast" style="display:none">
+
+        <!-- Compose form -->
+        <div style="padding:14px;background:#f8f9ff;border-radius:8px;border:1px solid #dde3f0;margin-bottom:16px">
+          <div id="bc-form-title" style="font-size:0.92rem;font-weight:700;color:#003399;margin-bottom:12px">✉ הודעה חדשה</div>
+
+          <div class="form-group" style="position:relative">
+            <label>שם קצר:</label>
+            <input type="text" id="bc-name-input"
+              placeholder="הקלד שם לחיפוש הודעה קיימת או להודעה חדשה..."
+              autocomplete="off"
+              style="width:100%;padding:8px 11px;font-size:0.92rem;border:2px solid #ccd6f0;border-radius:7px;direction:rtl;outline:none;font-family:inherit" />
+            <div id="bc-name-suggestions"
+              style="display:none;position:absolute;right:0;left:0;background:white;border:2px solid #0055cc;border-top:none;border-radius:0 0 8px 8px;max-height:200px;overflow-y:auto;z-index:20;box-shadow:0 4px 12px rgba(0,0,0,0.15)">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>תאריך:</label>
+            <input type="date" id="bc-date-input"
+              style="width:180px;padding:7px 10px;font-size:0.9rem;border:2px solid #ccd6f0;border-radius:7px;outline:none" />
+          </div>
+
+          <div class="form-group">
+            <label>תוכן ההודעה:</label>
+            <textarea id="broadcast-text" placeholder="תוכן ההודעה שתופיע בכל האירועים..." style="min-height:90px"></textarea>
+          </div>
+
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <button class="btn-save" id="broadcast-send-btn">שלח לכולם</button>
+            <button id="bc-delete-template-btn"
+              style="display:none;padding:9px 16px;background:#c00;color:white;border:none;border-radius:8px;font-size:0.88rem;font-weight:700;cursor:pointer">
+              🗑 מחק הודעה
+            </button>
+            <span id="broadcast-status" style="color:#1a7a3a;font-size:0.88rem;display:none"></span>
+          </div>
+        </div>
+
+        <!-- Saved messages list -->
+        <div>
+          <div style="font-size:0.88rem;font-weight:700;color:#444;margin-bottom:8px">הודעות קיימות (לחץ לבחירה ועריכה):</div>
+          <div id="bc-template-list"></div>
+        </div>
+
+      </div><!-- /#ap-broadcast -->
+    </div>
+  </div>
+</div>
+
+
+<!-- =============================================
+     EXTERNAL LIBRARIES
+     ============================================= -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+<!-- =============================================
+     APPLICATION SCRIPTS
+     Load order matters — each file depends on
+     the globals declared by the ones before it.
+     ============================================= -->
+<script src="js/config.js"></script>       <!-- Firebase init: auth, db -->
+<script src="js/state.js"></script>        <!-- Shared state + utility functions -->
+<script src="js/map.js"></script>          <!-- Leaflet map, makeIcon, selectPoint -->
+<script src="js/auth.js"></script>         <!-- Auth state listener, login modal -->
+<script src="js/locations.js"></script>    <!-- Firestore listener, add/edit/delete location -->
+<script src="js/search.js"></script>       <!-- Search bar, autocomplete, geocoding, GPS -->
+<script src="js/registration.js"></script> <!-- Event registration modal -->
+<script src="js/admin.js"></script>        <!-- Admin panel: registrations table + broadcast -->
+
+</body>
+</html>

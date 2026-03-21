@@ -1,0 +1,203 @@
+/* =============================================
+   BASE
+   ============================================= */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f6f9; color: #222; direction: rtl; }
+
+/* =============================================
+   HEADER
+   ============================================= */
+header { background: linear-gradient(135deg, #003399 0%, #0055cc 100%); color: white; padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 8px rgba(0,0,0,0.25); }
+.org-name { font-size: 1.2rem; font-weight: 700; }
+.org-sub  { font-size: 0.82rem; opacity: 0.85; margin-top: 2px; }
+.header-right { display: flex; align-items: center; gap: 10px; }
+#user-status { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.15); border-radius: 20px; padding: 4px 12px; font-size: 0.85rem; }
+#logout-btn { background: none; border: 1px solid rgba(255,255,255,0.5); color: white; border-radius: 12px; padding: 3px 10px; cursor: pointer; font-size: 0.8rem; }
+#login-header-btn { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.5); color: white; border-radius: 20px; padding: 6px 16px; cursor: pointer; font-size: 0.88rem; font-weight: 600; }
+.flag { font-size: 1.8rem; }
+
+/* =============================================
+   HERO
+   ============================================= */
+.hero { background: #001f6b; color: white; text-align: center; padding: 24px 16px 18px; border-bottom: 4px solid #0077ff; }
+.hero h1 { font-size: 1.8rem; font-weight: 800; margin-bottom: 6px; }
+.hero p  { font-size: 0.95rem; opacity: 0.88; max-width: 560px; margin: 0 auto; line-height: 1.6; }
+
+/* =============================================
+   SEARCH BAR
+   ============================================= */
+.search-section { background: white; padding: 12px 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.search-section label { font-weight: 600; font-size: 0.9rem; white-space: nowrap; color: #003399; }
+.search-input-wrapper { position: relative; flex: 1; min-width: 150px; }
+#search-input { width: 100%; padding: 8px 12px; font-size: 0.95rem; border: 2px solid #ccd6f0; border-radius: 8px; direction: rtl; outline: none; transition: border-color 0.2s; }
+#search-input:focus { border-color: #0055cc; }
+#search-input::-webkit-search-cancel-button { display: none; }
+#search-message { width: 100%; font-size: 0.85rem; color: #555; }
+.search-suggestions { position: absolute; top: 100%; right: 0; left: 0; background: white; border: 2px solid #0055cc; border-top: none; border-radius: 0 0 8px 8px; max-height: 220px; overflow-y: auto; z-index: 500; display: none; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+.search-suggestions.visible { display: block; }
+.suggestion-item { padding: 9px 14px; cursor: pointer; font-size: 0.9rem; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+.suggestion-item:hover { background: #eef2ff; }
+.suggestion-item:last-child { border-bottom: none; }
+.suggestion-dist { font-size: 0.78rem; color: #888; }
+
+/* =============================================
+   BUTTONS
+   ============================================= */
+.btn-blue   { padding: 8px 16px; background: #0055cc; color: white; border: none; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; white-space: nowrap; transition: background 0.2s; }
+.btn-blue:hover   { background: #003fa8; }
+.btn-green  { padding: 8px 14px; background: #1a7a3a; color: white; border: none; border-radius: 8px; font-size: 0.88rem; font-weight: 700; cursor: pointer; white-space: nowrap; transition: background 0.2s; }
+.btn-green:hover  { background: #155f2d; }
+.btn-green.active { background: #b30000; }
+.btn-orange { padding: 8px 14px; background: #b36000; color: white; border: none; border-radius: 8px; font-size: 0.88rem; font-weight: 700; cursor: pointer; white-space: nowrap; transition: background 0.2s; }
+.btn-orange:hover { background: #8c4a00; }
+
+/* =============================================
+   MAIN LAYOUT
+   ============================================= */
+.main-content { display: flex; height: calc(100vh - 210px); min-height: 400px; }
+#map { width: 100%; height: 100%; z-index: 1; }
+.map-wrapper { flex: 1; position: relative; min-width: 0; }
+.map-wrapper.add-mode { cursor: crosshair; }
+
+/* =============================================
+   ADD-MODE BANNER
+   ============================================= */
+#add-mode-banner { display: none; position: absolute; top: 12px; left: 50%; transform: translateX(-50%); background: rgba(180,0,0,0.9); color: white; padding: 10px 20px; border-radius: 8px; font-size: 0.95rem; font-weight: 700; z-index: 1000; pointer-events: none; white-space: nowrap; box-shadow: 0 2px 10px rgba(0,0,0,0.4); }
+#add-mode-banner.visible { display: block; }
+
+/* =============================================
+   SIDE PANEL
+   ============================================= */
+.side-panel { width: 320px; background: white; border-right: 1px solid #dde3f0; overflow-y: auto; display: flex; flex-direction: column; box-shadow: -2px 0 8px rgba(0,0,0,0.07); }
+.panel-header { background: #003399; color: white; padding: 12px 16px; font-size: 1rem; font-weight: 700; }
+.panel-placeholder { padding: 20px 16px; color: #888; font-size: 0.9rem; line-height: 1.7; text-align: center; }
+.panel-placeholder .icon { font-size: 2.2rem; margin-bottom: 8px; display: block; }
+
+/* =============================================
+   EVENT CARD
+   ============================================= */
+.event-card { display: none; }
+.event-card.visible { display: block; }
+.card-title-row { background: #e8eeff; border-bottom: 2px solid #003399; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; }
+.card-title-text { font-size: 1.05rem; font-weight: 700; color: #003399; }
+.edit-btn { padding: 5px 12px; background: #666; color: white; border: none; border-radius: 6px; font-size: 0.8rem; cursor: pointer; display: none; }
+.edit-btn:hover { background: #444; }
+.card-body { padding: 14px 16px; }
+.info-row { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 10px; font-size: 0.88rem; line-height: 1.5; }
+.info-icon { font-size: 1rem; min-width: 20px; text-align: center; margin-top: 1px; }
+.info-label { font-weight: 600; color: #444; }
+.notice-box    { background: #fff8e1; border-right: 4px solid #f9a825; padding: 8px 10px; border-radius: 4px; font-size: 0.85rem; line-height: 1.6; margin-bottom: 10px; color: #555; display: none; white-space: pre-line; }
+.broadcast-box { display: none; }
+.navigate-btn { display: block; width: 100%; padding: 9px; margin-bottom: 8px; background: #1a7a3a; color: white; border-radius: 8px; font-size: 0.9rem; font-weight: 700; text-align: center; text-decoration: none; transition: background 0.2s; }
+.navigate-btn:hover { background: #155f2d; }
+.register-btn { display: block; width: 100%; padding: 11px; background: #003399; color: white; border: none; border-radius: 8px; font-size: 0.95rem; font-weight: 700; cursor: pointer; text-align: center; transition: background 0.2s; }
+.register-btn:hover { background: #0044bb; }
+
+/* Google Places Autocomplete dropdown — must be above modal overlay (z-index 2000) */
+.pac-container { z-index: 3000 !important; }
+
+/* =============================================
+   LOCATION LIST (side panel)
+   ============================================= */
+.location-list { list-style: none; padding: 0; }
+.location-list li { padding: 10px 14px; border-bottom: 1px solid #eee; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: background 0.15s; font-size: 0.9rem; }
+.location-list li:hover { background: #eef2ff; }
+.loc-dot  { width: 11px; height: 11px; border-radius: 50%; background: #0055cc; flex-shrink: 0; }
+.loc-name { font-weight: 600; }
+.loc-sub  { font-size: 0.78rem; color: #888; }
+
+/* =============================================
+   FOOTER
+   ============================================= */
+footer { background: #001f6b; color: rgba(255,255,255,0.7); text-align: center; padding: 10px; font-size: 0.78rem; }
+
+/* =============================================
+   MODALS
+   ============================================= */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 2000; align-items: center; justify-content: center; }
+.modal-overlay.visible { display: flex; }
+.modal-box { background: white; border-radius: 12px; width: 90%; max-width: 520px; max-height: 90vh; overflow-y: auto; box-shadow: 0 8px 32px rgba(0,0,0,0.35); direction: rtl; }
+.modal-box.wide { max-width: 700px; }
+.modal-header { background: #003399; color: white; padding: 14px 18px; border-radius: 12px 12px 0 0; display: flex; justify-content: space-between; align-items: center; }
+.modal-header h2 { font-size: 1rem; font-weight: 700; }
+.modal-close { background: none; border: none; color: white; font-size: 1.4rem; cursor: pointer; line-height: 1; padding: 0 4px; }
+.modal-body { padding: 18px; }
+.modal-coords { background: #eef2ff; border: 1px solid #ccd6f0; border-radius: 6px; padding: 7px 11px; font-size: 0.82rem; color: #555; margin-bottom: 14px; }
+.modal-footer { display: flex; gap: 8px; padding-top: 4px; }
+.btn-save { padding: 10px 24px; background: #003399; color: white; border: none; border-radius: 8px; font-size: 0.95rem; font-weight: 700; cursor: pointer; }
+.btn-save:hover { background: #0044bb; }
+.btn-cancel-modal { padding: 10px 18px; background: #eee; color: #444; border: none; border-radius: 8px; font-size: 0.95rem; cursor: pointer; }
+.btn-cancel-modal:hover { background: #ddd; }
+
+/* =============================================
+   FORMS
+   ============================================= */
+.form-group { margin-bottom: 12px; }
+.form-group label { display: block; font-weight: 600; font-size: 0.88rem; color: #333; margin-bottom: 4px; }
+.required { color: #c00; }
+.form-group input,
+.form-group textarea,
+.form-group select { width: 100%; padding: 8px 11px; font-size: 0.92rem; border: 2px solid #ccd6f0; border-radius: 7px; direction: rtl; outline: none; font-family: inherit; transition: border-color 0.2s; }
+.form-group input:focus, .form-group textarea:focus { border-color: #0055cc; }
+.form-group textarea { resize: vertical; min-height: 70px; }
+.form-row { display: flex; gap: 10px; }
+.form-row .form-group { flex: 1; }
+.form-error { color: #c00; font-size: 0.8rem; margin-top: 3px; display: none; }
+
+/* =============================================
+   TABS
+   ============================================= */
+.tab-bar { display: flex; border-bottom: 2px solid #dde3f0; margin-bottom: 16px; }
+.tab { padding: 8px 18px; background: none; border: none; cursor: pointer; font-size: 0.9rem; font-weight: 600; color: #666; border-bottom: 3px solid transparent; margin-bottom: -2px; transition: all 0.15s; }
+.tab.active { color: #003399; border-bottom-color: #003399; }
+
+/* =============================================
+   REGISTRATIONS TABLE (admin panel)
+   ============================================= */
+.reg-table { width: 100%; border-collapse: collapse; font-size: 0.83rem; margin-top: 6px; }
+.reg-table th { background: #003399; color: white; padding: 7px 9px; text-align: right; }
+.reg-table td { padding: 6px 9px; border-bottom: 1px solid #eee; }
+.reg-table tr:nth-child(even) td { background: #f5f7ff; }
+.reg-count { font-size: 0.85rem; color: #555; margin-bottom: 6px; }
+
+/* =============================================
+   PASSWORD TOGGLE
+   ============================================= */
+.password-wrapper { position: relative; }
+.password-wrapper input { padding-left: 40px; }
+.show-pw-btn { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 1.1rem; color: #888; padding: 0; line-height: 1; }
+
+/* =============================================
+   CHROME AUTOFILL DETECTION
+   ============================================= */
+@keyframes autofill-detect { from {} to {} }
+#search-input:-webkit-autofill { animation-name: autofill-detect; animation-duration: 1ms; }
+
+/* =============================================
+   RESPONSIVE – MOBILE
+   ============================================= */
+@media (max-width: 640px) {
+  /* Compact header */
+  header { padding: 7px 12px; }
+  .org-name { font-size: 0.95rem; }
+  .org-sub  { display: none; }
+  .flag     { font-size: 1.2rem; }
+  #login-header-btn { padding: 5px 10px; font-size: 0.78rem; }
+  #user-status { font-size: 0.75rem; padding: 3px 8px; }
+
+  /* Compact hero */
+  .hero { padding: 8px 12px; border-bottom-width: 2px; }
+  .hero h1 { font-size: 1.05rem; margin-bottom: 2px; }
+  .hero p  { display: none; }
+
+  /* Compact search bar */
+  .search-section { padding: 7px 10px; gap: 6px; }
+
+  /* Stacked layout: map on top, panel below */
+  .main-content { flex-direction: column; height: auto; }
+  .map-wrapper { height: 35vh; }
+  #map { height: 35vh; }
+  .side-panel { width: 100%; height: auto; max-height: 55vh; overflow-y: auto; border-right: none; border-top: 2px solid #dde3f0; }
+
+  .modal-box.wide { max-width: 95%; }
+}
